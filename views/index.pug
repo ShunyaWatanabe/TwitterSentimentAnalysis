@@ -1,0 +1,98 @@
+extends layout
+
+block content
+  link(href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet")
+  script(src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js")
+  h1 Twitter Sentiment Analysis
+  p Please type in a hashtag to get the average sentiment of the tweets that use the hashtag
+
+  form(method="post" enctype="application/json" action="/")
+    if hashtag
+      div.form-group
+        label(for="hashtag") Tweet:
+        input.form-control#hashtag(type="text", name="hashtag" value=hashtag)
+    else
+      div.form-group
+        label(for="hashtag") Tweet:
+        input.form-control#hashtag(type="text", name="hashtag" value="#")
+
+    if user
+      div.form-group
+        label(for="user") Name of a public account:
+        input.form-control#user(type="text", name="user" value=user)
+    else
+      div.form-group
+        label(for="user") Name of a public account:
+        input.form-control#user(type="text", name="user" value="")
+
+    div.form-group
+      input(type="checkbox" id="toggle" data-onstyle="primary" data-offstyle="success")
+      label.margin-left(for="toggle")="Toggle between tweet or user to analyse"
+
+    if count
+      div.form-group
+        label(for="count") Number of tweets to analyse:
+        input.form-control#count(type="text", name="count" value=count max=100 required=true)
+    else
+      div.form-group
+        label(for="count") Number of tweets to analyse:
+        input.form-control#count(type="text", name="count" value="50" max=100 required=true)
+
+    div.form-group
+      button.btn.btn-primary#submit(type="submit", name="submit" value="click") Analyse
+
+
+    div.form-group
+      p#err=err
+
+  div
+    if average
+      h2 Results
+      div.p-3.mb-2.bg-light.text-dark
+        p The average score for this search is:
+          span.font-weight-bold=" "+average
+        p Scores closer to <b>1</b> indicate positive sentiment, while scores closer to <b>0</b> indicate negative sentiment.
+        p A document that is mostly objective does not progress to the sentiment detection phrase, resulting in a <b>.50</b> score, with no further processing.
+  div
+    if analysis
+      h3 Tweets
+      ul.list-group.list-group-flush
+        each val in analysis
+          li.list-group-item.flex-column
+            span.num=val.id
+            span=": " + val.text
+            span.badge.badge-secondary=val.score
+
+  br
+
+  script.
+    // A $( document ).ready() block.
+    $(document).ready(function () {
+      if ($("#toggle").is(":checked")) {
+        $("#hashtag").prop('disabled', true);
+        $("#user").prop('disabled', false);
+        console.log("on");
+      } else {
+        $("#hashtag").prop('disabled', false);
+        $("#user").prop('disabled', true);
+        console.log("off");
+      }
+      $(function () {
+        $('#toggle').bootstrapToggle({
+          on: 'Account',
+          off: 'Tweet'
+        });
+        $("#toggle").change(function(){
+          if ($("#toggle").is(":checked")) {
+            $("#hashtag").prop('disabled', true);
+            $("#user").prop('disabled', false);
+            console.log("on");
+          }
+          else {
+            $("#hashtag").prop('disabled', false);
+            $("#user").prop('disabled', true);
+            console.log("off");
+          }
+        });
+      });
+    });
